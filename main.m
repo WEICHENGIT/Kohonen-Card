@@ -28,34 +28,47 @@ data_testing=[m00,data_testing.data];
 s = 60;
 d = 2;
 % number of iteraion
-niter=200;
+niter=1000;
 
 % learning parameters
 
-D0        = 20;          
+D0        = 30;          
 L0        = 0.1;          
-lambda_D  =  1;       
-lambda_L  =  1;      
+lambda_D  =  niter/3;       
+lambda_L  =  niter/2;      
 
 % initialize the 8-dimensional grid
-[grid(:,1), grid(:,2)] = ind2sub([s s], 1:s^d);
+[Grid(:,1), Grid(:,2)] = ind2sub([s s], 1:s^d);
 
 % create random initial weights
 W_training = rand(s^d, size(data_training,2));
 
 % run SOM learning for specified number of steps
 for t = 1:niter
-    W_training = somlearn(W_training, grid, data_training, D0, L0, lambda_D, lambda_L, t);
+    W_training = somlearn(W_training, Grid, data_training, D0, L0, lambda_D, lambda_L, t);
     t
 end
 %%
-% create random initial weights
-W_testing = rand(s^d, size(data_training,2));
-
-% run SOM learning for specified number of steps
-for t = 1:niter
-    W_testing = somlearn(W_testing, grid, data_testing, D0, L0, lambda_D, lambda_L, t);
-    t
+figure(1);
+for i=1:length(data_training)
+    [ignore, BMU]=closest(data_training(i,:),W_training);
+    BMU=Grid(BMU,:)
+    plot(BMU(1),BMU(2),'Line','none');
+    text(BMU(1),BMU(2),labels_training(i),'FontSize',15,'Color','b');
+    xlim([1 s]);
+    ylim([1 s]);
+    hold on;
+    grid on;
 end
 
-
+figure(2);
+for i=1:length(data_testing)
+    [ignore, BMU]=closest(data_testing(i,:),W_training);
+    BMU=Grid(BMU,:)
+    plot(BMU(1),BMU(2),'Line','none');
+    text(BMU(1),BMU(2),labels_testing(i),'FontSize',15,'Color','r');
+    xlim([1 s]);
+    ylim([1 s]);
+    hold on;
+    grid on;
+end
