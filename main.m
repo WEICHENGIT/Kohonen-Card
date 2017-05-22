@@ -1,4 +1,5 @@
 clear all;
+%%
 %reading data
 delimiterIn = ' ';
 headerlinesIn = 1;
@@ -25,17 +26,17 @@ data_testing=[m00,data_testing.data];
 %%
 
 % grid size
-s = 60;
+s = 100;
 d = 2;
 % number of iteraion
 niter=1000;
 
 % learning parameters
 
-D0        = 30;          
-L0        = 0.1;          
+D0        = 50;          
+L0        = 0.2;          
 lambda_D  =  niter/3;       
-lambda_L  =  niter/2;      
+lambda_L  =  niter/3;      
 
 % initialize the 8-dimensional grid
 [Grid(:,1), Grid(:,2)] = ind2sub([s s], 1:s^d);
@@ -52,23 +53,32 @@ end
 figure(1);
 for i=1:length(data_training)
     [ignore, BMU]=closest(data_training(i,:),W_training);
-    BMU=Grid(BMU,:)
-    plot(BMU(1),BMU(2),'Line','none');
-    text(BMU(1),BMU(2),labels_training(i),'FontSize',15,'Color','b');
+    BMU_training(i,:)=Grid(BMU,:);
+    plot(BMU_training(i,1),BMU_training(i,2),'Line','none');
+    text(BMU_training(i,1),BMU_training(i,2),labels_training{i},'FontSize',15,'Color','b');
     xlim([1 s]);
     ylim([1 s]);
     hold on;
     grid on;
 end
 
+correct=0
 figure(2);
 for i=1:length(data_testing)
     [ignore, BMU]=closest(data_testing(i,:),W_training);
-    BMU=Grid(BMU,:)
-    plot(BMU(1),BMU(2),'Line','none');
-    text(BMU(1),BMU(2),labels_testing(i),'FontSize',15,'Color','r');
+    BMU_testing=Grid(BMU,:);
+    plot(BMU_testing(1),BMU_testing(2),'Line','none');
+    [ignore,labels_estimate]=closest(BMU_testing,BMU_training);
+    labels_estimate=labels_training{labels_estimate};
+    if labels_estimate==labels_testing{i}
+        text(BMU_testing(1),BMU_testing(2),labels_estimate,'FontSize',15,'Color','b');
+        correct=correct+1;
+    else
+        text(BMU_testing(1),BMU_testing(2),labels_estimate,'FontSize',15,'Color','r');
+    end
     xlim([1 s]);
     ylim([1 s]);
     hold on;
     grid on;
 end
+correct/length(labels_testing)
